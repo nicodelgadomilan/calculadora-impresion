@@ -1,0 +1,205 @@
+<?php
+$n=18;
+if($n==18)
+{
+echo"You are eligible";
+}
+else if($n<18)
+{
+echo"You are not eligible";
+}
+else
+{
+echo"You are eligible";
+}
+?>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Impresión en Rollo - THE BLACK BOX</title>
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #000;
+        }
+
+        h1 span {
+            color: #dc3545; /* Color destacado para THE BLACK BOX */
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+
+        .result h2 {
+            margin-top: 0;
+        }
+
+        .highlight {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .contact {
+            margin-top: 20px;
+            text-align: center;
+            font-style: italic;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Calculadora de Impresión en Rollo - <span>THE BLACK BOX</span></h1>
+
+        <!-- Selección del número de imágenes -->
+        <label for="numImages">¿Cuántas imágenes diferentes necesitas imprimir?</label>
+        <input type="number" id="numImages" min="1" value="1">
+
+        <!-- Formulario dinámico para las dimensiones y cantidad de imágenes -->
+        <div id="imageForm"></div>
+
+        <!-- Botón para calcular -->
+        <button onclick="calculate()">Calcular</button>
+
+        <!-- Resultados -->
+        <div class="result" id="result" style="display: none;">
+            <h2>Resultado:</h2>
+            <p>Pies lineales necesarios: <span id="totalFeet"></span></p>
+            <p>Precio total: $<span id="totalPrice"></span></p>
+            <p class="highlight">Ahorro: $<span id="savings"></span></p>
+        </div>
+
+        <!-- Mensaje de contacto -->
+        <div class="contact">
+            ¿Tienes dudas o necesitas un descuento especial? ¡Contáctanos!
+        </div>
+    </div>
+
+    <script>
+        // Función para generar el formulario dinámico
+        document.getElementById('numImages').addEventListener('input', function() {
+            const numImages = parseInt(this.value);
+            const imageForm = document.getElementById('imageForm');
+            imageForm.innerHTML = '';
+
+            for (let i = 1; i <= numImages; i++) {
+                imageForm.innerHTML += `
+                    <h3>Imagen ${i}</h3>
+                    <label for="image${i}Width">Ancho (pulgadas)</label>
+                    <input type="number" id="image${i}Width" min="1" required>
+                    <label for="image${i}Height">Alto (pulgadas)</label>
+                    <input type="number" id="image${i}Height" min="1" required>
+                    <label for="image${i}Quantity">Cantidad (unidades)</label>
+                    <input type="number" id="image${i}Quantity" min="1" required>
+                `;
+            }
+        });
+
+        // Función para calcular los pies lineales y el precio
+        function calculate() {
+            const numImages = parseInt(document.getElementById('numImages').value);
+            const sheetWidthInches = 35; // Ancho fijo de la hoja
+            const separationInches = 0.39; // Separación entre imágenes (1 cm)
+            let totalHeightInches = 0;
+
+            // Calcular la altura total necesaria para todas las imágenes
+            for (let i = 1; i <= numImages; i++) {
+                const widthInches = parseFloat(document.getElementById(`image${i}Width`).value);
+                const heightInches = parseFloat(document.getElementById(`image${i}Height`).value);
+                const quantity = parseInt(document.getElementById(`image${i}Quantity`).value);
+
+                // Calcular cuántas imágenes caben en una fila (considerando la separación)
+                const imagesPerRow = Math.floor((sheetWidthInches + separationInches) / (widthInches + separationInches));
+                const rowsNeeded = Math.ceil(quantity / imagesPerRow);
+
+                // Sumar la altura total de las filas, incluyendo separación
+                totalHeightInches += rowsNeeded * (heightInches + separationInches);
+            }
+
+            // Calcular los pies lineales (1 pie = 12 pulgadas)
+            const totalFeet = totalHeightInches / 12;
+
+            // Calcular el precio basado en la tabla de precios
+            let totalPrice = 0;
+            let savings = 0;
+
+            if (totalFeet <= 5) {
+                totalPrice = 49.50;
+            } else if (totalFeet <= 10) {
+                totalPrice = 94.05;
+            } else if (totalFeet <= 15) {
+                totalPrice = 138.60;
+            } else if (totalFeet <= 20) {
+                totalPrice = 183.15;
+            } else {
+                // Para más de 20 pies, aplicar un 10% de descuento por cada 5 pies adicionales
+                const additionalBlocks = Math.ceil((totalFeet - 20) / 5);
+                totalPrice = 183.15 + (additionalBlocks * 49.50 * 0.9);
+                savings = additionalBlocks * 49.50 * 0.1;
+            }
+
+            // Mostrar los resultados
+            document.getElementById('totalFeet').textContent = totalFeet.toFixed(2);
+            document.getElementById('totalPrice').textContent = totalPrice.toFixed(2);
+            document.getElementById('savings').textContent = savings.toFixed(2);
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+
+</body>
+</html>
